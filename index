@@ -1,0 +1,93 @@
+// Description: Main entry point for the application
+import express from 'express'
+import bodyParser from 'body-parser'
+import { ApolloServer } from '@apollo/server'
+import { expressMiddleware } from '@apollo/server/express4';
+// import { Prismaclient } from './lib/db';
+
+async function gqlServer() {
+    // Express app
+    const app = express()
+    const PORT = process.env.PORT || 3000
+
+    // Middleware
+    app.use(bodyParser.json())  // both work for json returning data
+    // app.use(express.json())
+
+    // create GraphQL server
+    const server = new ApolloServer({
+        typeDefs: `
+            type Query {
+                hello: String
+                say(name: String): String
+            }
+            
+            type Mutation {
+                createUser(firstName: String!, lastName: String!, email: String!, password: String!): String
+            }
+        `,
+        resolvers: {
+            Query: {
+                hello: () => 'Hi, how are you?',
+                say: (_, { name }) => `Hello ${name}, how can I help you?`
+            },
+            Mutation: {
+                createUser: async (_, { firstName, lastName, email, password }) => {
+                    await Prismaclient.user.create({
+                        data: {
+                            firstName,
+                            lastName,
+                            email,
+                            password,
+                            salt: "random string"
+                        }
+                    });
+                    return "User created successfully";
+                }
+            }
+        }
+    });
+    await server.start()
+    // Routes
+    app.get('/', async (req, res) => {
+        res.send(`Server is running`)
+    })
+
+    // Apply middleware
+    app.use('/graphql', expressMiddleware(server))
+
+    // Server listen
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`)
+    })
+}
+
+gqlServer()
+
+
+// resolvers for the graphql server
+
+// import { Prismaclient } from "../../lib/db";
+
+export const resolvers = {
+    Query: {
+      hello: () => 'Hi, how are you?',
+      say: (_: any, { name }: { name: string }) => `Hello ${name}, how can I help you?`,
+    },
+    Mutation: {
+      createUser: async (_: any, { firstName, lastName, email, password }: { firstName: string, lastName: string, email: string, password: string }) => {
+        await Prismaclient.user.create({
+          data: {
+            firstName,
+            lastName,
+            email,
+            password,
+            salt: "random string",
+          },
+        });
+        return "User created successfully";
+      },
+    },
+  };
+  
+
