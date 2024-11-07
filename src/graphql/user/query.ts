@@ -1,5 +1,3 @@
-
-
 export const query = `
     hello: String
     say(name:String): String

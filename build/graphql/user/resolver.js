@@ -23,7 +23,6 @@ exports.resolvers = {
             return token;
         }),
         getUserLoggedin: (_, parameter, context) => __awaiter(void 0, void 0, void 0, function* () {
-            console.log("Context in getUserLoggedin:", context);
             console.log("Context in getContext:", context);
             if (context && context.user) {
                 const id = context.user.id;

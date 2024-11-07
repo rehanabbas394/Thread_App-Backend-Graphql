@@ -8,9 +8,7 @@ export const resolvers = {
         const token = await UserService.loginUser(payload)
         return token
       },
-      getUserLoggedin: async (_: any, parameter: any, context: any) => {
-        console.log("Context in getUserLoggedin:", context);
-      
+      getUserLoggedin: async (_: any, parameter: any, context: any) => {      
         console.log("Context in getContext:", context);
         if (context && context.user){
           const id = context.user.id
